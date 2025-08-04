@@ -1,0 +1,9 @@
+name = "api-qf"
+main = "src/index.js"
+compatibility_date = "2025-08-04"
+account_id = "${CLOUDFLARE_ACCOUNT_ID}"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cq_db"
+database_id = "${D1_DATABASE_ID}"
