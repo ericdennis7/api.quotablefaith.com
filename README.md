@@ -50,7 +50,6 @@ Fetches a single random quote from the database.
 {
   "author": "Author Name",
   "quote": "The quote text.",
-  "likes": 123,
   "topics": "faith, hope, love"
 }
 ```
@@ -80,7 +79,6 @@ Returns an array of quotes matching the topic.
   {
     "author": "Author Name",
     "quote": "The quote text.",
-    "likes": 123,
     "topics": "faith, hope, love"
   },
   ...
