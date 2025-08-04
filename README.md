@@ -2,7 +2,7 @@
 
 ## 🤲🏻 Overview {#overview}
 
-The Quotable Faith Bible API is a ***free, simple, and fast service*** that gives you access to a large collection of Christian and Bible quotes. Whether you want a random quote for inspiration or want to search for quotes on a specific topic, this API makes it easy.
+The Quotable Faith Bible API is a ***free, simple, and fast service*** that gives you access to a large collection (10,000+) of Christian and Bible quotes. Whether you want a random quote for inspiration or want to search for quotes on a specific topic, this API makes it easy.
 
 Key features include:
 
@@ -13,7 +13,7 @@ Key features include:
 - **Control Over Results:** You can limit how many quotes you get back.
 - **Helpful Details:** Each quote includes the author, number of likes, and topics.
 
-This API is useful for developers building apps, websites, or tools that want to include inspiring Bible quotes.
+This API is useful for developers building apps, websites, or tools that want to include inspiring Christian quotes.
 
 Check out the endpoints below to learn how to use it.
 
