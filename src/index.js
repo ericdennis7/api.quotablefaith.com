@@ -21,7 +21,7 @@ export default {
     // GET /quotes/random
     if (method === "GET" && pathname === "/v1/quotes/random") {
       const quote = await db
-        .prepare("SELECT author, quote, likes, topics FROM quotes ORDER BY RANDOM() LIMIT 1")
+        .prepare("SELECT author, quote, topics FROM quotes ORDER BY RANDOM() LIMIT 1")
         .first();
 
       if (!quote) {
@@ -50,7 +50,7 @@ export default {
 
       const stmt = await db
         .prepare(`
-          SELECT author, quote, likes, topics
+          SELECT author, quote, topics
           FROM quotes
           WHERE LOWER(topics) LIKE ?
           ORDER BY RANDOM()
