@@ -1,6 +1,6 @@
 # 📖 [api.quotablefaith.com](https://api.quotablefaith.com)
 
-## 🤲🏻 Overview {#overview}
+## 🤲🏻 Overview
 
 The Quotable Faith Bible API is a ***free, simple, and fast service*** that gives you access to a large collection (10,000+) of Christian and Bible quotes. Whether you want a random quote for inspiration or want to search for quotes on a specific topic, this API makes it easy.
 
