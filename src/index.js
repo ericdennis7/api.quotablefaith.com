@@ -20,6 +20,9 @@ export default {
 
     // GET /quotes/random
     if (method === "GET" && pathname === "/v1/quotes/random") {
+      // Extract user_id from x-api-key header
+      const user_id = request.headers.get("x-api-key") || null;
+
       const quote = await db
         .prepare("SELECT author, quote, topics FROM quotes ORDER BY RANDOM() LIMIT 1")
         .first();
@@ -31,7 +34,20 @@ export default {
         );
       }
 
-      return Response.json(quote);
+      // Deliver response first
+      const response = Response.json(quote);
+
+      // Log the request asynchronously
+      ctx.waitUntil(
+        db.prepare(`
+          INSERT INTO request_logs (user_id, endpoint, method, status)
+          VALUES (?, ?, ?, ?)
+        `)
+        .bind(user_id, "/v1/quotes/random", "GET", 200)
+        .run()
+      );
+
+      return response;
     }
     
     // GET /quotes?q=hope&limit=10
