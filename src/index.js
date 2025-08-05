@@ -40,7 +40,7 @@ export default {
       // Log the request asynchronously
       ctx.waitUntil(
         db.prepare(`
-          INSERT INTO request_logs (user_id, endpoint, method, status)
+          INSERT INTO usage_logs (user_id, endpoint, method, status)
           VALUES (?, ?, ?, ?)
         `)
         .bind(user_id, "/v1/quotes/random", "GET", 200)
@@ -52,16 +52,26 @@ export default {
     
     // GET /quotes?q=hope&limit=10
     if (method === "GET" && pathname === "/v1/quotes") {
+      const user_id = request.headers.get("x-api-key") || null;
       const q = searchParams.get("q");
       let limitParam = parseInt(searchParams.get("limit"), 10);
       if (isNaN(limitParam)) limitParam = 1;
       const limit = Math.min(Math.max(limitParam, 1), 50);
 
       if (!q || q.trim().length < 1) {
-        return new Response(
+        const response = new Response(
           JSON.stringify({ detail: "Missing or invalid query param: q" }),
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
+        ctx.waitUntil(
+          db.prepare(`
+            INSERT INTO usage_logs (user_id, endpoint, method, status)
+            VALUES (?, ?, ?, ?)
+          `)
+          .bind(user_id, "/v1/quotes", "GET", 400)
+          .run()
+        );
+        return response;
       }
 
       const stmt = await db
@@ -76,13 +86,31 @@ export default {
         .all();
 
       if (stmt.results.length === 0) {
-        return new Response(
+        const response = new Response(
           JSON.stringify({ detail: "No quotes found for that topic." }),
           { status: 404, headers: { "Content-Type": "application/json" } }
         );
+        ctx.waitUntil(
+          db.prepare(`
+            INSERT INTO usage_logs (user_id, endpoint, method, status)
+            VALUES (?, ?, ?, ?)
+          `)
+          .bind(user_id, "/v1/quotes", "GET", 404)
+          .run()
+        );
+        return response;
       }
 
-      return Response.json(stmt.results);
+      const response = Response.json(stmt.results);
+      ctx.waitUntil(
+        db.prepare(`
+          INSERT INTO usage_logs (user_id, endpoint, method, status)
+          VALUES (?, ?, ?, ?)
+        `)
+        .bind(user_id, "/v1/quotes", "GET", 200)
+        .run()
+      );
+      return response;
     }
 
     // --- 404 fallback ---

@@ -3,6 +3,9 @@ main = "src/index.js"
 compatibility_date = "2025-08-04"
 account_id = "${CLOUDFLARE_ACCOUNT_ID}"
 
+[observability.logs]
+enabled = false
+
 [[d1_databases]]
 binding = "DB"
 database_name = "cq_db"
