@@ -20,8 +20,16 @@ export default {
 
     // GET /quotes/random
     if (method === "GET" && pathname === "/v1/quotes/random") {
-      // Extract user_id from x-api-key header
-      const user_id = request.headers.get("x-api-key") || null;
+      // Extract API key and look up user_id
+      const apiKey = request.headers.get("x-api-key") || null;
+      let user_id = null;
+      if (apiKey) {
+        const userRow = await db
+          .prepare("SELECT id FROM users WHERE api_key = ? LIMIT 1")
+          .bind(apiKey)
+          .first();
+        if (userRow) user_id = userRow.id;
+      }
 
       const quote = await db
         .prepare("SELECT author, quote, topics FROM quotes ORDER BY RANDOM() LIMIT 1")
@@ -52,7 +60,17 @@ export default {
     
     // GET /quotes?q=hope&limit=10
     if (method === "GET" && pathname === "/v1/quotes") {
-      const user_id = request.headers.get("x-api-key") || null;
+      // Extract API key and look up user_id
+      const apiKey = request.headers.get("x-api-key") || null;
+      let user_id = null;
+      if (apiKey) {
+        const userRow = await db
+          .prepare("SELECT id FROM users WHERE api_key = ? LIMIT 1")
+          .bind(apiKey)
+          .first();
+        if (userRow) user_id = userRow.id;
+      }
+
       const q = searchParams.get("q");
       let limitParam = parseInt(searchParams.get("limit"), 10);
       if (isNaN(limitParam)) limitParam = 1;
