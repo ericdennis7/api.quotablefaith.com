@@ -1,4 +1,4 @@
-# 📖 [api.quotablefaith.com](https://api.quotablefaith.com)
+# 📖 [api.quotablefaith.com](https://docs.quotablefaith.com/docs)
 
 ## 🤲🏻 Overview
 
@@ -17,7 +17,7 @@ This API is useful for developers building apps, websites, or tools that want to
 
 Check out the endpoints below to learn how to use it.
 
-> ❗ If you need an API key, [sign up here](https://api.quotablefaith.com).
+> ❗ If you need an API key, [sign up here](https://api.quotablefaith.com/signup).
 
 ## ⚠️ Warnings
 
@@ -38,7 +38,7 @@ Check out the endpoints below to learn how to use it.
 X-api-key: <your_api_key>
 ```
 
-If you need an API key, [sign up here](https://api.quotablefaith.com).
+If you need an API key, [sign up here](https://api.quotablefaith.com/signup).
 
 ### Example Code Requests
 #### Python (requests)
