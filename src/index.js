@@ -3,19 +3,42 @@
 // Created: August 4, 2025
 // api.quotablefaith.com
 
+function withCors(response) {
+  const newHeaders = new Headers(response.headers);
+  newHeaders.set("Access-Control-Allow-Origin", "*"); // Or specify your allowed origin
+  newHeaders.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  newHeaders.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: newHeaders,
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const { pathname, searchParams } = new URL(request.url);
     const method = request.method;
     const db = env.DB;
 
+    // --- CORS preflight handler ---
+    if (method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Or your allowed origin
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, x-api-key",
+        }
+      });
+    }
+
     // --- ROUTES ---
 
     // GET /
     if (method === "GET" && pathname === "/") {
-      return Response.json({
+      return withCors(Response.json({
         message: "Welcome to the Bible API. See /docs for available endpoints.",
-      });
+      }));
     }
 
     // GET /quotes/random
@@ -36,10 +59,10 @@ export default {
         .first();
 
       if (!quote) {
-        return new Response(
+        return withCors(new Response(
           JSON.stringify({ detail: "No quotes available." }),
           { status: 404, headers: { "Content-Type": "application/json" } }
-        );
+        ));
       }
 
       // Deliver response first
@@ -55,7 +78,7 @@ export default {
         .run()
       );
 
-      return response;
+      return withCors(response);
     }
     
     // GET /quotes?q=hope&limit=10
@@ -89,7 +112,7 @@ export default {
           .bind(user_id, "/v1/quotes", "GET", 400)
           .run()
         );
-        return response;
+        return withCors(response);
       }
 
       const stmt = await db
@@ -116,7 +139,7 @@ export default {
           .bind(user_id, "/v1/quotes", "GET", 404)
           .run()
         );
-        return response;
+        return withCors(response);
       }
 
       const response = Response.json(stmt.results);
@@ -128,13 +151,13 @@ export default {
         .bind(user_id, "/v1/quotes", "GET", 200)
         .run()
       );
-      return response;
+      return withCors(response);
     }
 
     // --- 404 fallback ---
-    return new Response(
+    return withCors(new Response(
       JSON.stringify({ detail: "Not Found" }),
       { status: 404, headers: { "Content-Type": "application/json" } }
-    );
+    ));
   },
 };
