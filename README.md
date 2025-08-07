@@ -1,6 +1,6 @@
-# 📖 api.quotablefaith.com
+# 📖 [api.quotablefaith.com](https://docs.quotablefaith.com/docs)
 
-## 🤲🏻 Overview {#overview}
+## 🤲🏻 Overview
 
 The Quotable Faith Bible API is a ***free, simple, and fast service*** that gives you access to a large collection (10,000+) of Christian and Bible quotes. Whether you want a random quote for inspiration or want to search for quotes on a specific topic, this API makes it easy.
 
@@ -17,6 +17,8 @@ This API is useful for developers building apps, websites, or tools that want to
 
 Check out the endpoints below to learn how to use it.
 
+> ❗ If you need an API key, [sign up here](https://api.quotablefaith.com/signup).
+
 ## ⚠️ Warnings
 
 - > **Each user is limited to one request per second.**
@@ -26,6 +28,57 @@ Check out the endpoints below to learn how to use it.
 ## 🌐 Base URL
 
 `https://api.quotablefaith.com`
+
+## Authentication: `X-api-key` Header
+
+> All requests to endpoints starting with `/v1/*` require an API key in the request header.  
+> Example header:
+
+```bash
+X-api-key: <your_api_key>
+```
+
+If you need an API key, [sign up here](https://api.quotablefaith.com/signup).
+
+### Example Code Requests
+#### Python (requests)
+```python
+import requests
+headers = {"X-api-key": "<your_api_key>"}
+resp = requests.get("https://api.quotablefaith.com/v1/quotes/random", headers=headers)
+print(resp.json())
+```
+
+#### JavaScript (fetch)
+```javascript
+fetch("https://api.quotablefaith.com/v1/quotes/random", {
+  headers: {"X-api-key": "<your_api_key>"}
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+#### PHP (cURL)
+```php
+$ch = curl_init("https://api.quotablefaith.com/v1/quotes/random");
+curl_setopt($ch, CURLOPT_HTTPHEADER, ["X-api-key: <your_api_key>"]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+```
+#### Perl (LWP::UserAgent)
+```perl
+use LWP::UserAgent;
+my $ua = LWP::UserAgent->new;
+my $req = HTTP::Request->new(GET => 'https://api.quotablefaith.com/v1/quotes/random');
+$req->header('X-api-key' => '<your_api_key>');
+my $res = $ua->request($req);
+print $res->decoded_content;
+```
+#### Bash (curl)
+```bash
+curl -H "X-api-key: <your_api_key>" https://api.quotablefaith.com/v1/quotes/random
+```
 
 ## 🔚 Endpoints
 
