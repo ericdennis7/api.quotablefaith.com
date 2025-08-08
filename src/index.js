@@ -72,27 +72,45 @@ async function searchQuotesWithFuzzy(db, qRaw, limit) {
 
   // Step 3: If no exact matches and query is substantial, try fuzzy matching
   if (q.length >= 4) {
-    // Get all quotes for fuzzy matching (you might want to add a reasonable limit here)
-    const allQuotes = await db
-      .prepare("SELECT author, quote, topics FROM quotes LIMIT 1000")
+    // First, get unique authors to find fuzzy matches
+    const authors = await db
+      .prepare("SELECT DISTINCT author FROM quotes")
       .all();
 
-    const fuzzyMatches = allQuotes.results.filter(quote => {
-      const normalizedAuthor = quote.author.toLowerCase().replace(/[.\s]/g, "");
-      const normalizedTopics = quote.topics.toLowerCase().replace(/[.\s]/g, "");
+    // Find authors that fuzzy match
+    const matchingAuthors = authors.results.filter(row => {
+      const normalizedAuthor = row.author.toLowerCase().replace(/[.\s]/g, "");
+      return isFuzzyMatch(q, normalizedAuthor);
+    });
+
+    // If we found matching authors, get quotes from those authors
+    if (matchingAuthors.length > 0) {
+      const authorConditions = matchingAuthors.map(() => "author = ?").join(" OR ");
+      const authorValues = matchingAuthors.map(row => row.author);
       
-      // Check if query fuzzy matches the author
-      if (isFuzzyMatch(q, normalizedAuthor)) {
-        return true;
+      const authorQuotes = await db
+        .prepare(`SELECT author, quote, topics FROM quotes WHERE ${authorConditions} ORDER BY RANDOM() LIMIT ?`)
+        .bind(...authorValues, limit)
+        .all();
+
+      if (authorQuotes.results.length > 0) {
+        return authorQuotes.results;
       }
-      
-      // Check if query fuzzy matches any topic
+    }
+
+    // If no author matches, try fuzzy matching on topics
+    const topicQuotes = await db
+      .prepare("SELECT author, quote, topics FROM quotes")
+      .all();
+
+    const topicMatches = topicQuotes.results.filter(quote => {
+      const normalizedTopics = quote.topics.toLowerCase().replace(/[.\s]/g, "");
       const topics = normalizedTopics.split(',').map(topic => topic.trim());
       return topics.some(topic => isFuzzyMatch(q, topic));
     });
 
-    // Randomize and limit the fuzzy matches
-    const shuffled = fuzzyMatches.sort(() => Math.random() - 0.5);
+    // Randomize and limit the topic matches
+    const shuffled = topicMatches.sort(() => Math.random() - 0.5);
     return shuffled.slice(0, limit);
   }
 
