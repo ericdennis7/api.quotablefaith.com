@@ -94,12 +94,8 @@ export default {
         if (tokenRow) user_id = tokenRow.user_id;
       }
 
-      const q = searchParams.get("q");
-      let limitParam = parseInt(searchParams.get("limit"), 10);
-      if (isNaN(limitParam)) limitParam = 1;
-      const limit = Math.min(Math.max(limitParam, 1), 50);
-
-      if (!q || q.trim().length < 1) {
+      const qRaw = searchParams.get("q");
+      if (!qRaw || qRaw.trim().length < 1) {
         const response = new Response(
           JSON.stringify({ detail: "Missing or invalid query param: q" }),
           { status: 400, headers: { "Content-Type": "application/json" } }
@@ -115,15 +111,26 @@ export default {
         return withCors(response);
       }
 
+      // Normalize the query by removing dots and spaces, and lowercasing
+      const q = qRaw.toLowerCase().replace(/[.\s]/g, "");
+
+      let limitParam = parseInt(searchParams.get("limit"), 10);
+      if (isNaN(limitParam)) limitParam = 1;
+      const limit = Math.min(Math.max(limitParam, 1), 50);
+
+      // Prepare SQL with normalized author and topics (remove dots and spaces)
       const stmt = await db
         .prepare(`
           SELECT author, quote, topics
           FROM quotes
-          WHERE LOWER(topics) LIKE ?
+          WHERE
+            REPLACE(REPLACE(LOWER(author), '.', ''), ' ', '') LIKE ?
+            OR
+            REPLACE(REPLACE(LOWER(topics), '.', ''), ' ', '') LIKE ?
           ORDER BY RANDOM()
           LIMIT ?
         `)
-        .bind(`%${q.toLowerCase()}%`, limit)
+        .bind(`%${q}%`, `%${q}%`, limit)
         .all();
 
       if (stmt.results.length === 0) {
